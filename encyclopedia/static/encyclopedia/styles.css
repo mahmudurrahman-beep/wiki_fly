@@ -59,42 +59,51 @@ html, body {
     height: 100%;
 }
 
-/* Logo Container */
+/* ===== LOGO FIXED - SQUARE INSTEAD OF CIRCLE ===== */
 .logo-container {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-bottom: 1px solid #dee2e6;
+    padding: 25px 20px;
+    text-align: center;
 }
 
+/* SQUARE LOGO (was circle) */
 .logo-img {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: 8px; /* SQUARE with slight rounding (was 50%) */
     border: 3px solid white;
-    box-shadow: var(--box-shadow);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: var(--transition);
+    display: block;
+    margin: 0 auto 15px auto;
+    background-color: white;
 }
 
 .logo-img:hover {
     transform: scale(1.05);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-.wiki-title {
+.site-title {
     font-family: 'Georgia', serif;
     font-weight: 700;
     letter-spacing: 1px;
     color: var(--dark-color);
+    font-size: 1.8rem;
+    margin: 0;
     transition: var(--transition);
 }
 
-.logo-container:hover .wiki-title {
+.logo-container:hover .site-title {
     color: var(--primary-color);
 }
 
 /* Search Form */
 .search-form {
     margin-bottom: 1.5rem;
+    padding: 0 20px;
 }
 
 .search-input {
@@ -117,6 +126,7 @@ html, body {
 /* Navigation Links */
 .nav-links {
     flex: 1;
+    padding: 0 20px;
 }
 
 .nav-item {
@@ -153,6 +163,7 @@ html, body {
 .user-section {
     background-color: #f1f3f4;
     border-top: 1px solid #dee2e6;
+    padding: 20px;
 }
 
 .user-avatar {
@@ -178,6 +189,7 @@ html, body {
 .messages-container {
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    padding: 15px 20px;
 }
 
 .alert {
@@ -206,13 +218,14 @@ html, body {
     font-weight: 700;
     color: var(--dark-color);
     margin-bottom: 1rem;
+    font-size: 2rem;
 }
 
 .entry-title {
     font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
     font-weight: 400;
     color: #202122;
-    border-bottom: 1px solid #a2a9b1;
+    border-bottom: 2px solid #a2a9b1;
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
     font-size: 2.5rem;
@@ -220,6 +233,7 @@ html, body {
 
 .entry-meta {
     font-size: 0.875rem;
+    margin-top: 0.5rem;
 }
 
 /* Entry Content */
@@ -227,6 +241,7 @@ html, body {
     font-size: 1rem;
     line-height: 1.6;
     color: #202122;
+    margin-top: 2rem;
 }
 
 .markdown-content {
@@ -312,6 +327,7 @@ html, body {
 .entry-footer {
     margin-top: 3rem;
     padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
 }
 
 /* ===== INDEX PAGE STYLING ===== */
@@ -320,6 +336,7 @@ html, body {
     border-radius: var(--border-radius);
     transition: var(--transition);
     overflow: hidden;
+    height: 100%;
 }
 
 .entries-list .entry-card:hover {
@@ -339,13 +356,25 @@ html, body {
     text-decoration: none;
 }
 
+.entries-list .card-body {
+    padding: 1.5rem;
+}
+
+.entries-list .card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem 1.5rem;
+}
+
 /* Empty States */
 .empty-state {
     color: #6c757d;
+    padding: 4rem 1rem;
 }
 
 .empty-state i {
     opacity: 0.5;
+    margin-bottom: 1.5rem;
 }
 
 /* ===== SEARCH PAGE STYLING ===== */
@@ -354,6 +383,11 @@ html, body {
     padding: 1.5rem;
     border-radius: var(--border-radius);
     border: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+}
+
+.search-results-page .search-box .input-group {
+    margin-bottom: 0.5rem;
 }
 
 .results-list .list-group-item {
@@ -361,6 +395,7 @@ html, body {
     margin-bottom: 0.5rem;
     border-radius: var(--border-radius);
     transition: var(--transition);
+    padding: 1rem 1.25rem;
 }
 
 .results-list .list-group-item:hover {
@@ -371,6 +406,13 @@ html, body {
 
 .no-results {
     color: #6c757d;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.no-results i {
+    opacity: 0.5;
+    margin-bottom: 1rem;
 }
 
 /* ===== AUTH PAGES STYLING ===== */
@@ -378,26 +420,31 @@ html, body {
     min-height: 80vh;
     display: flex;
     align-items: center;
+    padding: 2rem 0;
 }
 
 .auth-card {
     border: none;
     border-radius: var(--border-radius);
     overflow: hidden;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
 
 .auth-title {
     font-weight: 600;
     color: var(--dark-color);
+    margin-bottom: 0.5rem;
 }
 
 .auth-icon {
     color: var(--primary-color);
+    margin-bottom: 1.5rem;
 }
 
 .divider {
     position: relative;
     text-align: center;
+    margin: 1.5rem 0;
 }
 
 .divider::before {
@@ -416,6 +463,8 @@ html, body {
     z-index: 2;
     background-color: white;
     padding: 0 1rem;
+    color: #6c757d;
+    font-size: 0.875rem;
 }
 
 /* ===== FORM STYLING ===== */
@@ -423,6 +472,7 @@ html, body {
     border-radius: var(--border-radius);
     border: 1px solid #ced4da;
     transition: var(--transition);
+    padding: 0.75rem 1rem;
 }
 
 .form-control:focus {
@@ -432,6 +482,19 @@ html, body {
 
 .form-control-lg {
     font-size: 1.25rem;
+    padding: 1rem 1.25rem;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
 
 /* ===== BUTTON STYLING ===== */
@@ -439,6 +502,7 @@ html, body {
     border-radius: var(--border-radius);
     transition: var(--transition);
     font-weight: 500;
+    padding: 0.5rem 1rem;
 }
 
 .btn-primary {
@@ -477,11 +541,27 @@ html, body {
     transform: translateY(-2px);
 }
 
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.125rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
 /* ===== BADGES ===== */
 .badge {
     font-weight: 500;
     padding: 0.5em 0.8em;
     border-radius: 2rem;
+    font-size: 0.875em;
+}
+
+.badge.bg-light {
+    border: 1px solid #dee2e6;
+    color: #495057;
 }
 
 /* ===== ACTION BUTTONS ===== */
@@ -504,6 +584,12 @@ html, body {
         flex-direction: column;
     }
     
+    .logo-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 6px;
+    }
+    
     .entry-title {
         font-size: 1.8rem;
     }
@@ -519,15 +605,20 @@ html, body {
     .entry-page {
         padding: 1rem;
     }
+    
+    .auth-page {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 576px) {
     .logo-img {
         width: 60px;
         height: 60px;
+        border-radius: 4px;
     }
     
-    .wiki-title {
+    .site-title {
         font-size: 1.5rem;
     }
     
@@ -538,6 +629,14 @@ html, body {
     .nav-link {
         padding: 0.5rem;
         font-size: 0.9rem;
+    }
+    
+    .search-form {
+        padding: 0 15px;
+    }
+    
+    .nav-links {
+        padding: 0 15px;
     }
 }
 
@@ -584,32 +683,111 @@ html, body {
 .sidebar::-webkit-scrollbar-thumb {
     background: #b0b0b0;
 }
-/* Update the site title styling */
-.site-title {
-    font-family: 'Georgia', serif;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--dark-color);
-    transition: var(--transition);
-    font-size: 1.5rem;
+
+/* ===== UTILITY CLASSES ===== */
+.text-center {
+    text-align: center;
 }
 
-.logo-container:hover .site-title {
-    color: var(--primary-color);
+.mb-0 {
+    margin-bottom: 0 !important;
 }
 
-/* Update page title for entries */
-.entry-title {
-    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
-    font-weight: 400;
-    color: #202122;
-    border-bottom: 2px solid #a2a9b1;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
+.mt-2 {
+    margin-top: 0.5rem !important;
 }
 
-/* Add styling for public access badges */
-.badge.bg-light {
-    border: 1px solid #dee2e6;
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.p-0 {
+    padding: 0 !important;
+}
+
+.p-3 {
+    padding: 1rem !important;
+}
+
+.p-4 {
+    padding: 1.5rem !important;
+}
+
+/* ===== CUSTOM OVERRIDES ===== */
+.d-block {
+    display: block !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+.h-100 {
+    height: 100% !important;
+}
+
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+.border-top {
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+.shadow {
+    box-shadow: var(--box-shadow) !important;
+}
+
+.rounded {
+    border-radius: var(--border-radius) !important;
+}
+
+/* ===== LOGO SQUARE FIX OVERRIDE ===== */
+/* Force square logo in case of any inheritance issues */
+.sidebar .logo-img,
+.logo-container .logo-img,
+a .logo-img {
+    border-radius: 8px !important;
+    object-fit: cover !important;
+}
+
+/* Ensure logo stays square on all devices */
+@media (max-width: 768px) {
+    .sidebar .logo-img,
+    .logo-container .logo-img,
+    a .logo-img {
+        border-radius: 6px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar .logo-img,
+    .logo-container .logo-img,
+    a .logo-img {
+        border-radius: 4px !important;
+    }
 }
