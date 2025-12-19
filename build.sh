@@ -8,11 +8,11 @@ echo "🗄️ Setting up database..."
 python manage.py migrate
 
 echo "🎨 Collecting static files..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --clear
 
 echo "📝 Importing wiki entries..."
-# First ensure entries directory exists
-mkdir -p entries
+# First create media/entries directory for your util.py functions
+mkdir -p media/entries
 python import_entries.py
 
 echo "✅ Build completed!"
