@@ -173,3 +173,6 @@ if not DEBUG:
     
     # Reduce clickjacking risk
     SECURE_REFERRER_POLICY = 'same-origin'
+# ====== MEDIA FILES (Your markdown entries) ======
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # CRITICAL FOR YOUR IMPORT
