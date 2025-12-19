@@ -1,6 +1,6 @@
 """
 Import script for wiki entries.
-Optimized for Render.com deployment with filesystem fallback.
+Optimized for Render.com deployment
 """
 
 import os
@@ -9,18 +9,17 @@ import django
 from pathlib import Path
 import shutil
 
-# ====== SETUP DJANGO ======
+# Setup Django
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wiki.settings')
 django.setup()
 
-# ====== IMPORTS ======
 from encyclopedia.util import save_entry, get_entry, list_entries, ensure_entries_directory
 from encyclopedia.models import Entry
 from django.contrib.auth.models import User
 from django.conf import settings
 
-# ====== SAMPLE ENTRIES (fallback if no .md files) ======
+# ====== SAMPLE ENTRIES (FIXED VERSION) ======
 SAMPLE_ENTRIES = [
     ("CSS", """# CSS
 
@@ -38,7 +37,7 @@ body {
     padding: 20px;
 }
 ```"""),
-    
+
     ("Django", """# Django
 
 Django is a high-level Python web framework that encourages rapid development and clean, pragmatic design.
@@ -62,7 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 ```"""),
-    
+
     ("Git", """# Git
 
 Git is a distributed version control system that tracks changes in source code during software development.
