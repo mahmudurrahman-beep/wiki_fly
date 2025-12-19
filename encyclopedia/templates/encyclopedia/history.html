@@ -1,0 +1,97 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    History: {{ title }} - Wiki
+{% endblock %}
+
+{% block body %}
+<div class="history-page">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-history me-2"></i>Edit History: {{ title }}
+        </h1>
+        <p class="text-muted">All edits made to this page</p>
+    </div>
+    
+    <div class="back-link mb-4">
+        <a href="{% url 'entry' title %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Page
+        </a>
+    </div>
+    
+    {% if entries %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Version</th>
+                    <th>Editor</th>
+                    <th>Date & Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>#{{ forloop.counter }}</td>
+                    <td>
+                        <i class="fas fa-user me-1"></i>{{ entry.user.username }}
+                    </td>
+                    <td>
+                        <i class="fas fa-clock me-1"></i>{{ entry.created_at|date:"M d, Y H:i" }}
+                    </td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-outline-info" 
+                           onclick="viewVersion('{{ entry.content|escapejs }}')">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state text-center py-5">
+        <i class="fas fa-history fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No edit history available</h4>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Version Viewer Modal -->
+<div class="modal fade" id="versionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Viewing Version</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="markdown-content" id="versionContent">
+                    <!-- Content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewVersion(content) {
+    // Convert markdown to HTML (simple conversion)
+    let htmlContent = content
+        .replace(/# (.*)/g, '<h1>$1</h1>')
+        .replace(/## (.*)/g, '<h2>$1</h2>')
+        .replace(/### (.*)/g, '<h3>$1</h3>')
+        .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    
+    document.getElementById('versionContent').innerHTML = htmlContent;
+    new bootstrap.Modal(document.getElementById('versionModal')).show();
+}
+</script>
+{% endblock %}
