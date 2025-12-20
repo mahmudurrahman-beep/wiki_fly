@@ -2,10 +2,15 @@ import json
 import os
 from django.conf import settings
 from pathlib import Path
+from datetime import datetime
+
+def get_history_dir():
+    """Get the history directory path"""
+    return Path(settings.BASE_DIR) / 'history'
 
 def get_history_file(title):
     """Get path to history JSON file for a page"""
-    history_dir = Path(settings.BASE_DIR) / 'history'
+    history_dir = get_history_dir()
     history_dir.mkdir(exist_ok=True)
     return history_dir / f"{title}.json"
 
@@ -16,7 +21,7 @@ def save_to_history(title, user, content):
     # Load existing history
     history = []
     if history_file.exists():
-        with open(history_file, 'r') as f:
+        with open(history_file, 'r', encoding='utf-8') as f:
             history = json.load(f)
     
     # Add new entry
@@ -32,7 +37,7 @@ def save_to_history(title, user, content):
         history = history[-10:]
     
     # Save back
-    with open(history_file, 'w') as f:
+    with open(history_file, 'w', encoding='utf-8') as f:
         json.dump(history, f, indent=2)
     
     return history
@@ -41,6 +46,6 @@ def load_from_history(title):
     """Load edit history from file"""
     history_file = get_history_file(title)
     if history_file.exists():
-        with open(history_file, 'r') as f:
+        with open(history_file, 'r', encoding='utf-8') as f:
             return json.load(f)
     return []
