@@ -1,0 +1,21 @@
+ **Biology**
+  - Cell biology (cells, organelles, cell cycle)
+  - Genetics (DNA, RNA, heredity, Mendelian laws)
+  - Evolution (Darwin, natural selection, speciation)
+  - Microbiology (bacteria, viruses, fungi, protists)
+- **Zoology**
+  - Classification of animal phyla (Porifera, Arthropoda, Mollusca, Chordata, etc.)
+  - Comparative anatomy (vertebrates vs invertebrates)
+  - Animal physiology (respiration, reproduction, nervous systems)
+  - Ethology (animal behavior)
+- **Human Anatomy & Physiology**
+  - Circulatory system (heart, blood vessels)
+  - Respiratory system (lungs, oxygen exchange)
+  - Digestive system (stomach, intestines, liver)
+  - Nervous system (brain, spinal cord, senses)
+  - Endocrine, skeletal, muscular, reproductive, urinary, integumentary systems
+- **Medicine**
+  - Immunology (immune system, vaccines, diseases)
+  - Pathology (study of diseases)
+  - Biotechnology (genetic engineering, CRISPR)
+  - Public health (epidemics, pandemics, nutrition)
