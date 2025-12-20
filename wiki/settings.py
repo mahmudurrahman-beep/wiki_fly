@@ -10,7 +10,8 @@ from django.contrib.messages import constants as messages
 
 # Add these new environment variables
 # In wiki/settings.py, add to existing settings:
-
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent  # ⬅️ ADD THIS LINE
 # GitHub Sync Settings
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 GITHUB_REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER', '')
