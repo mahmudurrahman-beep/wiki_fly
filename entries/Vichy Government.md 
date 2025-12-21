@@ -1,0 +1,29 @@
+# Vichy Government (État Français)
+
+## Origins
+- Established after France’s defeat by Germany in **June 1940**.  
+- The French Third Republic collapsed, and Marshal **Philippe Pétain** assumed power.  
+- Headquarters moved to **Vichy**, a spa town in central France.  
+
+## Structure
+- Officially called the **French State (État Français)**.  
+- Led by Pétain as Chief of State, with **Pierre Laval** as a key collaborator.  
+- Adopted the motto: **“Travail, Famille, Patrie” (Work, Family, Fatherland)**, replacing “Liberty, Equality, Fraternity.”  
+
+## Policies
+- Collaborated with Nazi Germany, including economic and military cooperation.  
+- Implemented **anti-Semitic laws** and assisted in the deportation of Jews.  
+- Suppressed political opposition and promoted authoritarian nationalism.  
+
+## Division of France
+- **Occupied Zone:** Northern and western France under direct German control.  
+- **Free Zone:** Southern France governed by Vichy until 1942, when Germany occupied it fully.  
+
+## Collapse
+- Allied landings in **Normandy (June 1944)** and liberation of Paris ended Vichy’s authority.  
+- Leaders, including Pétain and Laval, were tried for treason after the war.  
+- Pétain was sentenced to death, later commuted to life imprisonment.  
+
+## Legacy
+- Remembered as a **dark chapter in French history**, marked by collaboration and repression.  
+- Its legacy remains controversial, with debates about responsibility and resistance.
