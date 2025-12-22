@@ -1,32 +1,32 @@
-#!/usr/bin/env bash
-set -o errexit
+#!/bin/bash
+echo "=== Starting Build Process ==="
 
-echo "📦 Installing dependencies..."
+# Install dependencies
+echo "Installing Python packages..."
 pip install -r requirements.txt
 
-echo "🗄️ Setting up database..."
-python manage.py migrate
+# Run database migrations
+echo "Running database migrations..."
+python manage.py migrate --noinput
 
-echo "📁 Creating entries directory..."
-# Create entries folder for your util.py functions
-mkdir -p entries
+# Create superuser if not exists (optional)
+echo "Checking for superuser..."
+python -c "
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wiki.settings')
+import django
+django.setup()
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+    print('Superuser created')
+else:
+    print('Superuser already exists')
+"
 
-echo "📝 Creating sample markdown files..."
-# Create sample .md files if none exist
-if [ ! -f "entries/CSS.md" ]; then
-    echo "# CSS\n\nCascading Style Sheets is a style sheet language." > entries/CSS.md
-    echo "# Django\n\nDjango is a high-level Python web framework." > entries/Django.md
-    echo "# Git\n\nGit is a distributed version control system." > entries/Git.md
-    echo "# HTML\n\nHTML is the standard markup language." > entries/HTML.md
-    echo "# Python\n\nPython is a programming language." > entries/Python.md
-    echo "# Generative AI\n\nGenerative AI creates new content." > entries/Generative\ AI.md
-    echo "Created 6 sample markdown files"
-fi
+# Collect static files
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
-echo "🎨 Collecting static files..."
-python manage.py collectstatic --noinput --clear
-
-echo "📚 Importing entries..."
-python import_entries.py
-
-echo "✅ Build completed!"
+echo "=== Build Complete ==="
