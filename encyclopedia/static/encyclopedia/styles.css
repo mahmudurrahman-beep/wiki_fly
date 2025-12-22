@@ -440,3 +440,37 @@ body {
     max-width: 300px;
     font-size: 12px;
 }
+/* Sidebar search forms */
+.search-form .input-group {
+    margin-bottom: 10px;
+}
+
+.ai-search-form .input-group {
+    margin-bottom: 5px;
+}
+
+.search-input {
+    font-size: 14px;
+    padding: 6px 10px;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+/* Make forms side by side on larger screens */
+@media (min-width: 768px) {
+    .p-3 .search-form,
+    .p-3 .ai-search-form {
+        display: inline-block;
+        width: calc(50% - 5px);
+        margin-right: 5px;
+        vertical-align: top;
+    }
+    
+    .p-3 .ai-search-form {
+        margin-right: 0;
+        margin-left: 5px;
+    }
+}
