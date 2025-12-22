@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.core.cache import cache
 import time
 from .ai_images import generate_craiyon_image  
@@ -351,7 +352,6 @@ def generate_ai_image_process(request):
             }, status=500)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
 
 def ai_image_result(request):
     """Display AI image result"""
