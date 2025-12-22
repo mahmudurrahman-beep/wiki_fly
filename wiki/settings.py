@@ -8,40 +8,12 @@ from pathlib import Path
 import dj_database_url
 from django.contrib.messages import constants as messages
 
-# Add these new environment variables
-# In wiki/settings.py, add to existing settings:
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent  # ⬅️ ADD THIS LINE
-# GitHub Sync Settings
-GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
-GITHUB_REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER', '')
-GITHUB_REPO_NAME = os.environ.get('GITHUB_REPO_NAME', '')
-
-# Database configuration - UPDATED
-# Use this instead of your current DATABASES setup:
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
-
-# Force PostgreSQL on Render if DATABASE_URL is set
-if os.environ.get('DATABASE_URL'):
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ====== SECURITY SETTINGS ======
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-for-local-only-9hx!b^z8')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-change-this-now')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
@@ -115,11 +87,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'wiki.wsgi.application'
 
 # ====== DATABASE CONFIGURATION ======
-# SIMPLE VERSION - Works on both local and Render
+# Single database configuration for all environments
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
         conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -179,6 +152,36 @@ WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_ROOT = BASE_DIR / 'staticfiles'
 
+# ====== CACHE CONFIGURATION ======
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+# ====== GITHUB SYNC SETTINGS ======
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+GITHUB_REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER', '')
+GITHUB_REPO_NAME = os.environ.get('GITHUB_REPO_NAME', '')
+
+# ====== AI IMAGE SETTINGS ======
+IMGBB_API_KEY = os.environ.get('IMGBB_API_KEY', '')
+
+# ====== LOGGING CONFIGURATION ======
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
 # ====== PRODUCTION SECURITY SETTINGS ======
 if not DEBUG:
     # HTTPS/SSL settings
@@ -201,19 +204,3 @@ if not DEBUG:
     
     # Reduce clickjacking risk
     SECURE_REFERRER_POLICY = 'same-origin'
-
-# ====== RENDER SPECIFIC SETTINGS ======
-# Detect if we're on Render
-IS_RENDER = os.environ.get('RENDER', False)
-
-if IS_RENDER and os.environ.get('DATABASE_URL'):
-    # Apply PostgreSQL-specific settings only on Render with DATABASE_URL
-    try:
-        # Update database config for Render PostgreSQL
-        DATABASES['default'] = dj_database_url.parse(
-            os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    except:
-        pass  # Keep default if there's an error
