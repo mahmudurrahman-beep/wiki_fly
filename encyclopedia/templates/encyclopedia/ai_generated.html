@@ -1,0 +1,200 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    AI Image Generator - Wiki
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 class="mb-4">
+        <i class="fas fa-robot text-primary me-2"></i>
+        AI Image Generator
+    </h1>
+    
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{% url 'generate_ai_image' %}" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-lg" 
+                           name="prompt" 
+                           placeholder="Describe your image (e.g., 'a cat wearing a hat, digital art style')"
+                           value="{{ prompt|default:'' }}"
+                           required>
+                    <button class="btn btn-primary btn-lg" type="submit">
+                        <i class="fas fa-magic me-2"></i>Generate
+                    </button>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-info-circle"></i> Be descriptive for better results. Takes 10-20 seconds.
+                    Limit: 3 images per hour.
+                </small>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Results Section -->
+    {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+        </div>
+    {% endif %}
+    
+    {% if success %}
+        <div class="alert alert-success">
+            <h4><i class="fas fa-check-circle me-2"></i>Image Generated Successfully!</h4>
+            <p class="mb-0">
+                Prompt: <strong>"{{ prompt }}"</strong> | 
+                Time: {{ generation_time }} seconds | 
+                Your usage: {{ rate_limit_used }}/{{ rate_limit_max }} images this hour
+            </p>
+        </div>
+        
+        <!-- Generated Image -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">Generated Image</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="generated-image-container mb-4">
+                    <img src="{{ image_url }}" 
+                         alt="AI generated image: {{ prompt }}"
+                         class="img-fluid rounded shadow"
+                         id="ai-generated-image"
+                         style="max-height: 500px;">
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+                    <button onclick="downloadImage()" class="btn btn-success">
+                        <i class="fas fa-download me-2"></i>Save Image
+                    </button>
+                    <button onclick="copyMarkdown()" class="btn btn-info">
+                        <i class="fas fa-code me-2"></i>Copy Markdown
+                    </button>
+                    <a href="{% url 'new_page' %}" class="btn btn-primary">
+                        <i class="fas fa-file-alt me-2"></i>Use in New Page
+                    </a>
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+                
+                <!-- Warning -->
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> This image is temporarily hosted and will expire in approximately 2 weeks.
+                    Please save it locally if you want to keep it permanently.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Image Information -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Image Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Prompt:</strong> {{ prompt }}</p>
+                        <p><strong>Generation Time:</strong> {{ generation_time }} seconds</p>
+                        <p><strong>Image URL:</strong></p>
+                        <input type="text" class="form-control" value="{{ image_url }}" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">How to Use</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Markdown Code:</h6>
+                        <pre class="bg-light p-3 rounded"><code>![AI generated: {{ prompt }}]({{ image_url }})</code></pre>
+                        <p class="mb-0">Copy and paste this into any wiki page to display the image.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- JavaScript Functions -->
+        <script>
+            function downloadImage() {
+                const img = document.getElementById('ai-generated-image');
+                const link = document.createElement('a');
+                link.href = img.src;
+                link.download = 'ai-generated-{{ prompt|slugify }}.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Show success message
+                alert('Image download started!');
+            }
+            
+            function copyMarkdown() {
+                const markdown = `![AI generated: {{ prompt }}]({{ image_url }})`;
+                navigator.clipboard.writeText(markdown).then(() => {
+                    alert('Markdown code copied to clipboard!');
+                });
+            }
+        </script>
+    {% elif not prompt %}
+        <!-- Instructions -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    How to Use AI Image Generator
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Features:</h5>
+                        <ul>
+                            <li>Generate AI images using text prompts</li>
+                            <li>Free to use (Craiyon API)</li>
+                            <li>Rate limit: 3 images per hour per user</li>
+                            <li>Temporary hosting for 2 weeks</li>
+                            <li>Easy download and markdown integration</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Prompt Examples:</h5>
+                        <ul>
+                            <li>"a majestic dragon flying over mountains"</li>
+                            <li>"cyberpunk city at night, neon lights"</li>
+                            <li>"watercolor painting of a forest"</li>
+                            <li>"cute puppy wearing sunglasses"</li>
+                            <li>"astronaut riding a horse, surreal art"</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Tips for Better Results:</h6>
+                    <ul class="mb-0">
+                        <li>Be descriptive and specific</li>
+                        <li>Include art style (e.g., "digital art", "watercolor", "photorealistic")</li>
+                        <li>Mention colors, mood, or setting</li>
+                        <li>Expect 10-20 seconds generation time</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
