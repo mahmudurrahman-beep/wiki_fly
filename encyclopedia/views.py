@@ -270,7 +270,18 @@ def history(request, title):
 @login_required
 def generate_ai_image(request):
     """Generate AI image from prompt with better timeout handling"""
-    context = {'user': request.user}
+    # In your generate_ai_image view, ensure you're returning:
+    context = {
+    'success': True,
+    # This should be a DIRECT image URL, like:
+    # 'image_url': 'https://image.pollinations.ai/prompt/sunset.png' 
+    # or a data URL like:
+    # 'image_url': 'data:image/png;base64,iVBORw0KGgoAAAAN...'
+    'image_url': image_url,  
+    'prompt': prompt,
+    # ... other context
+    }
+
     
     if request.method == "POST":
         prompt = request.POST.get("prompt", "").strip()
