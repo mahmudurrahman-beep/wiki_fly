@@ -1,0 +1,105 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}Generating AI Image - Wiki{% endblock %}
+
+{% block body %}
+<div class="container text-center py-5">
+    <h1 class="mb-4">
+        <i class="fas fa-robot text-primary me-2"></i>
+        Generating AI Image
+    </h1>
+    
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <h4>Processing your request...</h4>
+            <p class="text-muted">Prompt: <strong>"{{ prompt }}"</strong></p>
+            <p>This usually takes 10-20 seconds. Please wait...</p>
+            
+            <div class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                     style="width: 100%"></div>
+            </div>
+            
+            <div id="status-message" class="alert alert-info">
+                <i class="fas fa-sync-alt fa-spin me-2"></i>
+                Connecting to AI service...
+            </div>
+            
+            <div class="mt-4">
+                <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-start generation
+document.addEventListener('DOMContentLoaded', function() {
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    function startGeneration() {
+        attempts++;
+        
+        fetch("{% url 'generate_ai_image_process' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `prompt={{ prompt|urlencode }}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to results page
+                window.location.href = "{% url 'ai_image_result' %}?success=true&prompt={{ prompt|urlencode }}&image_url=" + encodeURIComponent(data.image_url) + "&time=" + data.generation_time;
+            } else {
+                // Show error
+                document.getElementById('status-message').innerHTML = 
+                    `<div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${data.error || 'Generation failed'}
+                     </div>`;
+                
+                // Retry if under max attempts
+                if (attempts < maxAttempts && data.error.includes('busy')) {
+                    setTimeout(startGeneration, 3000);
+                } else {
+                    // Show back button
+                    document.getElementById('status-message').innerHTML += 
+                        `<div class="mt-3">
+                            <a href="{% url 'generate_ai_image' %}" class="btn btn-primary">
+                                <i class="fas fa-redo me-2"></i>Try Again
+                            </a>
+                         </div>`;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('status-message').innerHTML = 
+                `<div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Connection error. Retrying...
+                 </div>`;
+            
+            if (attempts < maxAttempts) {
+                setTimeout(startGeneration, 2000);
+            }
+        });
+    }
+    
+    // Start after 1 second
+    setTimeout(startGeneration, 1000);
+});
+</script>
+{% endblock %}
