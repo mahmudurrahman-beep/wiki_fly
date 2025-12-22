@@ -1,345 +1,195 @@
 {% extends "encyclopedia/layout.html" %}
 
-{% block title %}AI Image Generator - Wiki{% endblock %}
+{% block title %}AI Image Generated - Wiki{% endblock %}
 
 {% block body %}
 <div class="container">
     <h1 class="mb-4">
         <i class="fas fa-robot text-primary me-2"></i>
-        AI Image Generator
+        AI Image Generated
     </h1>
     
-    <!-- Search Form -->
+    <!-- Search Form (for generating another) -->
     <div class="card mb-4">
         <div class="card-body">
             <form action="{% url 'generate_ai_image' %}" method="post">
                 {% csrf_token %}
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control form-control-lg" 
+                    <input type="text" class="form-control" 
                            name="prompt" 
-                           placeholder="Describe your image (e.g., 'a cat wearing a hat, digital art style')"
+                           placeholder="Describe a new image..."
                            value="{{ prompt|default:'' }}"
                            required>
-                    <button class="btn btn-primary btn-lg" type="submit">
-                        <i class="fas fa-magic me-2"></i>Generate
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-magic me-2"></i>Generate New Image
                     </button>
                 </div>
-                <small class="text-muted">
-                    <i class="fas fa-info-circle"></i> Takes 10-20 seconds. Limit: 3 images/hour.
-                </small>
             </form>
         </div>
     </div>
     
-    <!-- Error Messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    {% if error %}
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            {{ error }}
-        </div>
-    {% endif %}
-    
     <!-- Success Results -->
     {% if success %}
-        <!-- Store data in JavaScript IMMEDIATELY -->
+        <!-- Store data in JavaScript -->
         <script>
-            // Store data in variables as soon as page loads
             const GENERATED_IMAGE_URL = "{{ image_url|escapejs }}";
             const GENERATED_PROMPT = "{{ prompt|escapejs }}";
             const GENERATED_PROMPT_SLUG = "{{ prompt|slugify|escapejs }}";
-            
-            console.log("🎯 AI Image Debug Info:");
-            console.log("URL:", GENERATED_IMAGE_URL);
-            console.log("Prompt:", GENERATED_PROMPT);
-            console.log("URL starts with https?:", GENERATED_IMAGE_URL.startsWith('https://'));
-            console.log("URL contains 'pollinations'?:", GENERATED_IMAGE_URL.includes('pollinations'));
         </script>
         
         <div class="alert alert-success">
             <h4><i class="fas fa-check-circle me-2"></i>Image Generated Successfully!</h4>
             <p class="mb-0">
-                Prompt: <strong>"{{ prompt }}"</strong> | 
-                Time: {{ generation_time }} seconds | 
-                Your usage: {{ rate_limit_used }}/{{ rate_limit_max }} images this hour
+                <strong>Prompt:</strong> "{{ prompt }}"<br>
+                <small>Time: {{ generation_time }} seconds | 
+                Your usage: {{ rate_limit_used }}/{{ rate_limit_max }} images this hour</small>
             </p>
         </div>
         
-        <!-- Generated Image -->
+        <!-- Generated Image Display -->
         <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="mb-0">Generated Image</h4>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Your Generated Image</h5>
+                <span class="badge bg-info">
+                    <i class="fas fa-clock me-1"></i>Temporary (2 weeks)
+                </span>
             </div>
             <div class="card-body text-center">
-                <!-- Loading Spinner (Shows First) -->
+                <!-- Loading Spinner -->
                 <div id="image-loading-spinner" class="mb-4">
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading image...</span>
                     </div>
                     <p class="mt-2 text-muted">Loading your generated image...</p>
                 </div>
                 
-                <!-- The Actual Image (Hidden Until Ready) -->
+                <!-- The Actual Image -->
                 <div id="image-container" style="display: none;">
                     <img src="{{ image_url }}" 
                          alt="AI generated image: {{ prompt }}"
                          class="img-fluid rounded shadow mb-3"
                          id="ai-generated-image"
                          style="max-height: 500px; max-width: 100%;"
-                         crossorigin="anonymous"
-                         referrerpolicy="no-referrer">
+                         crossorigin="anonymous">
                 </div>
                 
-                <!-- Error Message (Hidden Unless Needed) -->
+                <!-- Error Message -->
                 <div id="image-error" class="alert alert-danger mb-4" style="display: none;">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span id="error-message">The image failed to load.</span>
+                    Image failed to load. 
                     <button onclick="retryImageLoad()" class="btn btn-sm btn-outline-danger ms-2">
                         <i class="fas fa-redo me-1"></i>Retry
                     </button>
                 </div>
                 
-                <!-- Action Buttons (Initially Disabled) -->
-                <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
-                    <button id="download-btn" class="btn btn-success" disabled>
-                        <i class="fas fa-download me-2"></i>Save Image
+                <!-- Action Buttons - SIMPLIFIED -->
+                <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+                    <!-- 1. PRIMARY ACTION: Save Locally -->
+                    <button id="download-btn" class="btn btn-success" disabled onclick="downloadImage()">
+                        <i class="fas fa-download me-2"></i>Save Image to Device
                     </button>
-                    <button id="copy-btn" class="btn btn-info" disabled>
-                        <i class="fas fa-code me-2"></i>Copy Markdown
-                    </button>
-                    <a href="{% url 'new_page' %}" class="btn btn-primary">
-                        <i class="fas fa-file-alt me-2"></i>Use in Wiki
-                    </a>
+                    
+                    <!-- 2. SECONDARY: Generate Another -->
                     <a href="{% url 'generate_ai_image' %}" class="btn btn-outline-primary">
                         <i class="fas fa-redo me-2"></i>Generate Another
                     </a>
                 </div>
                 
-                <!-- Warning -->
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Note:</strong> Images are temporarily hosted for ~2 weeks. Save them locally for permanent use.
-                </div>
-                
-                <!-- Debug Info (Optional - Can Remove Later) -->
-                <div class="mt-3 small text-muted">
-                    <details>
-                        <summary>Debug Information</summary>
-                        <p class="mb-1 mt-2"><strong>Image URL:</strong></p>
-                        <input type="text" class="form-control form-control-sm" 
-                               value="{{ image_url }}" 
-                               readonly
-                               onclick="this.select()">
-                        <p class="mb-1 mt-2"><strong>Direct Link:</strong> 
-                            <a href="{{ image_url }}" target="_blank" rel="noopener noreferrer">
-                                Open in New Tab
-                            </a>
-                        </p>
-                    </details>
+                <!-- Clear Warning -->
+                <div class="alert alert-warning mt-4">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Notice</h6>
+                    <p class="mb-2">
+                        This image is <strong>temporarily hosted</strong> and will be removed in approximately 2 weeks.
+                    </p>
+                    <p class="mb-0">
+                        <strong>To keep this image permanently:</strong> Use the <i>"Save Image to Device"</i> button above, 
+                        then manually upload it to your wiki page if needed.
+                    </p>
                 </div>
             </div>
         </div>
         
+        <!-- JavaScript -->
         <script>
-        // =============================================
-        // MAIN IMAGE LOADING LOGIC
-        // =============================================
-        
-        let imageLoadAttempts = 0;
-        const MAX_LOAD_ATTEMPTS = 3;
-        
-        function initImageLoading() {
-            console.log("🔄 Starting image loading process...");
+        // Image loading logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const img = document.getElementById('ai-generated-image');
+            const spinner = document.getElementById('image-loading-spinner');
+            const container = document.getElementById('image-container');
             
-            const imageElement = document.getElementById('ai-generated-image');
-            const loadingSpinner = document.getElementById('image-loading-spinner');
-            const imageContainer = document.getElementById('image-container');
-            const errorDiv = document.getElementById('image-error');
-            
-            // Remove any existing event listeners to avoid duplicates
-            imageElement.onload = null;
-            imageElement.onerror = null;
-            
-            // Set up success handler
-            imageElement.onload = function() {
-                console.log("✅ Image loaded successfully!");
-                loadingSpinner.style.display = 'none';
-                imageContainer.style.display = 'block';
-                errorDiv.style.display = 'none';
-                
-                // Enable buttons
+            img.onload = function() {
+                spinner.style.display = 'none';
+                container.style.display = 'block';
                 document.getElementById('download-btn').disabled = false;
-                document.getElementById('copy-btn').disabled = false;
-                
-                // Add click handlers AFTER image is loaded
-                document.getElementById('download-btn').onclick = downloadImage;
-                document.getElementById('copy-btn').onclick = copyMarkdown;
-                
-                // Force browser to repaint (sometimes needed for Safari)
-                imageElement.style.opacity = '0.99';
-                setTimeout(() => { imageElement.style.opacity = '1'; }, 10);
             };
             
-            // Set up error handler
-            imageElement.onerror = function() {
-                imageLoadAttempts++;
-                console.error(`❌ Image load failed (attempt ${imageLoadAttempts}/${MAX_LOAD_ATTEMPTS})`);
-                
-                if (imageLoadAttempts >= MAX_LOAD_ATTEMPTS) {
-                    loadingSpinner.style.display = 'none';
-                    errorDiv.style.display = 'block';
-                    document.getElementById('error-message').textContent = 
-                        'Failed to load image after ' + MAX_LOAD_ATTEMPTS + ' attempts. The service might be busy.';
-                } else {
-                    // Retry with exponential backoff
-                    setTimeout(() => {
-                        console.log(`🔄 Retrying image load (attempt ${imageLoadAttempts + 1})...`);
-                        // Force image reload by breaking cache
-                        imageElement.src = GENERATED_IMAGE_URL + 
-                            (GENERATED_IMAGE_URL.includes('?') ? '&' : '?') + 
-                            't=' + new Date().getTime();
-                    }, 1000 * imageLoadAttempts); // 1s, 2s, 3s...
-                }
+            img.onerror = function() {
+                spinner.style.display = 'none';
+                document.getElementById('image-error').style.display = 'block';
             };
             
-            // Set a timeout in case loading hangs
-            setTimeout(() => {
-                if (loadingSpinner.style.display !== 'none' && errorDiv.style.display !== 'block') {
-                    console.warn("⏰ Image loading timeout - forcing display");
-                    loadingSpinner.style.display = 'none';
-                    imageContainer.style.display = 'block';
-                    document.getElementById('download-btn').disabled = false;
-                    document.getElementById('copy-btn').disabled = false;
+            // Auto-retry after 3 seconds if image fails
+            setTimeout(function() {
+                if (spinner.style.display !== 'none') {
+                    console.log("Retrying image load...");
+                    img.src = GENERATED_IMAGE_URL + '&t=' + new Date().getTime();
                 }
-            }, 30000); // 30 second timeout
-            
-            // Start loading the image
-            console.log("📸 Setting image source to:", GENERATED_IMAGE_URL);
-            imageElement.src = GENERATED_IMAGE_URL;
-        }
+            }, 3000);
+        });
         
         function retryImageLoad() {
-            console.log("🔁 Manual retry requested");
-            imageLoadAttempts = 0;
             document.getElementById('image-error').style.display = 'none';
             document.getElementById('image-loading-spinner').style.display = 'block';
             document.getElementById('image-container').style.display = 'none';
-            initImageLoading();
+            
+            const img = document.getElementById('ai-generated-image');
+            img.src = GENERATED_IMAGE_URL + '&t=' + new Date().getTime();
         }
         
-        // =============================================
-        // BUTTON FUNCTIONS (Use JavaScript variables, NOT DOM)
-        // =============================================
-        
+        // Simple download function
         function downloadImage() {
-            console.log("💾 Downloading image:", GENERATED_IMAGE_URL);
-            
-            // Create a hidden link and trigger download
             const link = document.createElement('a');
             link.href = GENERATED_IMAGE_URL;
-            link.download = 'ai-generated-' + GENERATED_PROMPT_SLUG + '.png';
-            link.target = '_blank';
-            
-            // Some browsers require the link to be in the DOM
+            link.download = 'ai-wiki-' + GENERATED_PROMPT_SLUG + '.png';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
-            // Optional: Show a success message
-            const originalText = document.getElementById('download-btn').innerHTML;
-            document.getElementById('download-btn').innerHTML = '<i class="fas fa-check me-2"></i>Saved!';
-            document.getElementById('download-btn').classList.remove('btn-success');
-            document.getElementById('download-btn').classList.add('btn-secondary');
+            // Visual feedback
+            const btn = document.getElementById('download-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-2"></i>Saved!';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-secondary');
             
             setTimeout(() => {
-                document.getElementById('download-btn').innerHTML = originalText;
-                document.getElementById('download-btn').classList.remove('btn-secondary');
-                document.getElementById('download-btn').classList.add('btn-success');
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-success');
             }, 2000);
         }
-        
-        function copyMarkdown() {
-            const markdown = `![AI generated: ${GENERATED_PROMPT}](${GENERATED_IMAGE_URL})`;
-            
-            navigator.clipboard.writeText(markdown).then(() => {
-                // Visual feedback
-                const originalText = document.getElementById('copy-btn').innerHTML;
-                document.getElementById('copy-btn').innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
-                document.getElementById('copy-btn').classList.remove('btn-info');
-                document.getElementById('copy-btn').classList.add('btn-secondary');
-                
-                setTimeout(() => {
-                    document.getElementById('copy-btn').innerHTML = originalText;
-                    document.getElementById('copy-btn').classList.remove('btn-secondary');
-                    document.getElementById('copy-btn').classList.add('btn-info');
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                alert('Failed to copy to clipboard. Please copy manually:\n\n' + markdown);
-            });
-        }
-        
-        // =============================================
-        // PAGE INITIALIZATION
-        // =============================================
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("🚀 Page loaded, initializing image loader...");
-            
-            // If we're in success mode, start loading the image
-            {% if success %}
-                initImageLoading();
-                
-                // Pre-fetch the image to warm the cache
-                fetch(GENERATED_IMAGE_URL, { 
-                    mode: 'no-cors',
-                    cache: 'force-cache'
-                }).catch(() => {
-                    // Silently fail - this is just a cache warming attempt
-                });
-            {% endif %}
-            
-            // Test if the URL is accessible (for debugging)
-            if (typeof GENERATED_IMAGE_URL !== 'undefined') {
-                console.log("🔍 Testing image URL accessibility...");
-                const testImg = new Image();
-                testImg.onload = () => console.log("✅ URL is accessible via Image() constructor");
-                testImg.onerror = () => console.warn("⚠️ URL failed via Image() constructor");
-                testImg.src = GENERATED_IMAGE_URL;
-            }
-        });
         </script>
-    {% endif %}
-    
-    <!-- Instructions for first-time users -->
-    {% if not success and not error and not prompt %}
-    <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0">
-                <i class="fas fa-question-circle me-2"></i>
-                How to Use
-            </h4>
+        
+    {% else %}
+        <!-- Initial state (no generation yet) -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">How to Use</h5>
+            </div>
+            <div class="card-body">
+                <p>Enter a description of the image you want to generate. For example:</p>
+                <ul>
+                    <li><em>"a Bengal cat sleeping in a sunbeam"</em></li>
+                    <li><em>"watercolor painting of a mountain landscape"</em></li>
+                    <li><em>"cyberpunk street market at night"</em></li>
+                </ul>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Generated images are temporarily available for 2 weeks. 
+                    Please save them to your device if you want to keep them permanently.
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <p>Enter a detailed description of the image you want AI to create.</p>
-            <h5>Prompt Examples:</h5>
-            <ul>
-                <li>"a cute puppy wearing sunglasses, cartoon style"</li>
-                <li>"sunset over mountains, digital painting"</li>
-                <li>"cyberpunk city at night with neon lights"</li>
-                <li>"watercolor painting of a forest with deer"</li>
-            </ul>
-            <p class="mb-0"><strong>Tip:</strong> The more descriptive you are, the better the result!</p>
-        </div>
-    </div>
     {% endif %}
 </div>
 {% endblock %}
