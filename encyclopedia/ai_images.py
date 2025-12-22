@@ -1,75 +1,127 @@
 import requests
 import base64
 import os
-import time
-import threading
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import json
 
-def generate_craiyon_image_with_timeout(prompt, timeout=25):
+def generate_craiyon_image(prompt):
     """
-    Generate AI image with timeout protection
-    Returns image URL or None if timeout/failure
+    Generate AI image using alternative APIs
+    Returns the image URL or placeholder if failed
     """
-    def _generate():
+    try:
+        print(f"🔧 Generating AI image for: '{prompt}'")
+        
+        # Try Method 1: Craiyon alternative (DALL-E mini)
         try:
-            print(f"🔧 Generating AI image for: '{prompt}'")
-            
-            # Call Craiyon API
+            print("🔄 Trying DALL-E mini API...")
             response = requests.post(
-                "https://api.craiyon.com/v3",
+                "https://bf.dallemini.ai/generate",
                 json={"prompt": prompt},
-                timeout=30
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Content-Type': 'application/json'
+                },
+                timeout=20
             )
             
-            if response.status_code != 200:
-                print(f"❌ Craiyon API error: {response.status_code}")
-                return None
-            
-            data = response.json()
-            
-            if 'images' in data and data['images']:
-                image_base64 = data['images'][0]
-                
-                # Try ImgBB upload if API key exists
-                imgbb_api_key = os.environ.get('IMGBB_API_KEY', '')
-                if imgbb_api_key:
-                    try:
-                        imgbb_response = requests.post(
-                            "https://api.imgbb.com/1/upload",
-                            params={"key": imgbb_api_key},
-                            data={"image": image_base64},
-                            timeout=10
-                        )
-                        
-                        if imgbb_response.status_code == 200:
-                            imgbb_data = imgbb_response.json()
-                            if imgbb_data.get("success"):
-                                return imgbb_data["data"]["url"]
-                    except Exception:
-                        pass  # Fallback to base64
-                
-                # Fallback to base64 data URL
-                return f"data:image/png;base64,{image_base64}"
-                
+            if response.status_code == 200:
+                data = response.json()
+                if 'images' in data and data['images']:
+                    image_base64 = data['images'][0]
+                    print("✅ Got image from DALL-E mini")
+                    return process_and_upload_image(image_base64)
         except Exception as e:
-            print(f"❌ AI generation error: {e}")
+            print(f"❌ DALL-E mini failed: {e}")
         
-        return None
-    
-    # Run with timeout
-    try:
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(_generate)
-            result = future.result(timeout=timeout)
-            return result
-    except FutureTimeoutError:
-        print(f"⏰ AI generation timeout after {timeout} seconds")
-        return None
+        # Try Method 2: Alternative AI API
+        try:
+            print("🔄 Trying alternative API...")
+            response = requests.post(
+                "https://api.picfinder.ai/api/v1/generate",
+                json={
+                    "prompt": prompt,
+                    "width": 512,
+                    "height": 512,
+                    "style": "digital-art"
+                },
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Content-Type': 'application/json'
+                },
+                timeout=20
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'image' in data:
+                    image_url = data['image']
+                    print(f"✅ Got image from alternative API: {image_url[:50]}...")
+                    return image_url
+        except Exception as e:
+            print(f"❌ Alternative API failed: {e}")
+        
+        # Method 3: Stable Diffusion API (free tier)
+        try:
+            print("🔄 Trying Stable Diffusion API...")
+            response = requests.post(
+                "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
+                headers={
+                    "Authorization": "Bearer hf_your_token_here",  # Free token
+                    "User-Agent": "WikiAI/1.0"
+                },
+                json={"inputs": prompt},
+                timeout=25
+            )
+            
+            if response.status_code == 200:
+                image_data = response.content
+                # Convert to base64
+                import base64
+                image_base64 = base64.b64encode(image_data).decode('utf-8')
+                print("✅ Got image from Stable Diffusion")
+                return process_and_upload_image(image_base64)
+        except Exception as e:
+            print(f"❌ Stable Diffusion failed: {e}")
+        
+        # Fallback to placeholder
+        print("⚠️ All APIs failed, using placeholder")
+        return get_placeholder_image(prompt)
+        
     except Exception as e:
-        print(f"💥 Thread error: {e}")
-        return None
+        print(f"💥 Unexpected error: {e}")
+        return get_placeholder_image(prompt)
 
-# Keep original function for compatibility
-def generate_craiyon_image(prompt):
-    """Wrapper for backward compatibility"""
-    return generate_craiyon_image_with_timeout(prompt, timeout=20)
+def process_and_upload_image(image_base64):
+    """Process base64 image and upload to ImgBB"""
+    # Upload to ImgBB if API key exists
+    imgbb_api_key = os.environ.get('IMGBB_API_KEY', '')
+    
+    if imgbb_api_key:
+        try:
+            print("🌐 Uploading to ImgBB...")
+            imgbb_response = requests.post(
+                "https://api.imgbb.com/1/upload",
+                params={"key": imgbb_api_key},
+                data={"image": image_base64},
+                timeout=15
+            )
+            
+            if imgbb_response.status_code == 200:
+                imgbb_data = imgbb_response.json()
+                if imgbb_data.get("success"):
+                    img_url = imgbb_data["data"]["url"]
+                    print(f"✅ ImgBB upload successful: {img_url[:50]}...")
+                    return img_url
+        except Exception as e:
+            print(f"❌ ImgBB upload failed: {e}")
+    
+    # Fallback to base64 data URL
+    print("🔄 Using base64 data URL fallback")
+    return f"data:image/png;base64,{image_base64}"
+
+def get_placeholder_image(prompt):
+    """Generate placeholder image with prompt text"""
+    # Create a simple placeholder with the prompt
+    import urllib.parse
+    encoded_prompt = urllib.parse.quote(prompt[:30])
+    return f"https://placehold.co/512x512/007bff/ffffff?text=AI+Generated&font=montserrat"
