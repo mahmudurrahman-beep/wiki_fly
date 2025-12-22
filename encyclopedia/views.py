@@ -268,49 +268,56 @@ def history(request, title):
     })
 @login_required
 def generate_ai_image(request):
-    """Generate AI image from prompt and display results"""
-    context = {}
+    """Generate AI image from prompt"""
+    context = {'user': request.user}
     
     if request.method == "POST":
         prompt = request.POST.get("prompt", "").strip()
         
         if not prompt:
-            messages.error(request, "Please enter a prompt for the AI image")
+            messages.error(request, "Please enter a prompt")
             return redirect('index')
         
-        # Rate limiting: 3 images per hour per user
+        # Rate limiting
         cache_key = f"ai_image_{request.user.id}"
         count = cache.get(cache_key, 0)
         
         if count >= 3:
-            messages.error(request, "Rate limit exceeded. You can generate up to 3 images per hour.")
-            return redirect('index')
+            context['error'] = "⚠️ Rate limit: 3 images/hour. Please wait."
+            return render(request, 'encyclopedia/ai_generated.html', context)
         
-        # Generate the image
-        start_time = time.time()
-        image_url = generate_craiyon_image(prompt)
-        generation_time = time.time() - start_time
+        print(f"👤 User {request.user.username} requested AI image for: '{prompt}'")
         
-        if image_url:
-            # Increment rate limit counter
-            cache.set(cache_key, count + 1, 3600)  # 1 hour expiry
+        # Try to generate image
+        try:
+            from .ai_images import generate_craiyon_image
+            start_time = time.time()
+            image_url = generate_craiyon_image(prompt)
+            generation_time = time.time() - start_time
             
-            context.update({
-                'success': True,
-                'image_url': image_url,
-                'prompt': prompt,
-                'generation_time': round(generation_time, 2),
-                'rate_limit_used': count + 1,
-                'rate_limit_max': 3,
-                'user': request.user
-            })
-        else:
-            messages.error(request, "AI image generation failed. Please try again.")
-            return redirect('index')
-    else:
-        # If GET request, show empty form
-        return render(request, 'encyclopedia/ai_generated.html', {
-            'user': request.user
-        })
+            print(f"⏱️ Generation took {generation_time:.2f} seconds")
+            print(f"📷 Image URL returned: {image_url[:100] if image_url else 'None'}")
+            
+            if image_url:
+                # Update rate limit
+                cache.set(cache_key, count + 1, 3600)
+                
+                context.update({
+                    'success': True,
+                    'image_url': image_url,
+                    'prompt': prompt,
+                    'generation_time': round(generation_time, 2),
+                    'rate_limit_used': count + 1,
+                    'rate_limit_max': 3
+                })
+                messages.success(request, f"✅ Image generated successfully!")
+            else:
+                context['error'] = "❌ Failed to generate image. The AI service might be busy."
+                messages.error(request, "Image generation failed. Please try again.")
+                
+        except Exception as e:
+            print(f"💥 Error in generate_ai_image view: {e}")
+            context['error'] = f"❌ Error: {str(e)}"
+            messages.error(request, f"Error: {str(e)}")
     
     return render(request, 'encyclopedia/ai_generated.html', context)
