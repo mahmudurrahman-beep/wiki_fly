@@ -15,4 +15,5 @@ urlpatterns = [
     path('edit/<str:title>/', views.edit_page, name='edit_page'),
     path('random/', views.random_page, name='random_page'),
     path("history/<str:title>/", views.history, name="history"), 
+    path("ai-image/", views.generate_ai_image, name="generate_ai_image"),
 ]
