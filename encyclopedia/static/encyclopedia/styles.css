@@ -387,3 +387,56 @@ body {
     width: 100% !important;
     padding: 0 15px !important;
 }
+/* AI Image Generator Styles */
+.ai-search-form .search-input {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+}
+
+.ai-search-form .btn-sm {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+}
+
+.generated-image-container {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background: #f8f9fa;
+    margin: 20px 0;
+}
+
+.generated-image-container img {
+    max-width: 100%;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Make sidebar buttons side by side */
+@media (min-width: 768px) {
+    .p-3 .search-form,
+    .p-3 .ai-search-form {
+        display: inline-block;
+        width: calc(50% - 5px);
+        margin-right: 5px;
+        vertical-align: top;
+    }
+    
+    .p-3 .ai-search-form {
+        margin-right: 0;
+        margin-left: 5px;
+    }
+}
+
+/* Better tooltip for placeholder */
+.search-input[title]:hover:after {
+    content: attr(title);
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 1000;
+    max-width: 300px;
+    font-size: 12px;
+}
