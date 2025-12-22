@@ -26,13 +26,15 @@
                     </div>
                     
                     <!-- Search Section/Search Form -->
+                    <!-- Search Section -->
 <div class="p-3">
     <!-- Regular Search Form -->
     <form action="{% url 'search' %}" method="get" class="search-form mb-3">
         <div class="input-group">
             <input type="text" class="form-control search-input" name="q" 
-                   placeholder="Search Encyclopedia" aria-label="Search">
-            <button class="btn btn-primary btn-sm" type="submit">
+                   placeholder="Search Encyclopedia" 
+                   aria-label="Search Encyclopedia">
+            <button class="btn btn-primary btn-sm" type="submit" title="Search pages">
                 <i class="fas fa-search"></i>
             </button>
         </div>
@@ -43,15 +45,15 @@
         {% csrf_token %}
         <div class="input-group">
             <input type="text" class="form-control search-input" name="prompt" 
-                   placeholder="Type prompt for AI image (e.g., 'sunset over mountains')" 
+                   placeholder="AI Image: describe image" 
                    aria-label="AI Image Prompt"
-                   title="Describe what image you want AI to generate. Takes 10-20 seconds. Max 3 images/hour.">
-            <button class="btn btn-primary btn-sm" type="submit">
+                   title="Generate AI images. Takes 10-20 seconds. 3 images/hour limit.">
+            <button class="btn btn-info btn-sm" type="submit" title="Generate AI Image">
                 <i class="fas fa-robot"></i>
             </button>
         </div>
         <small class="text-muted d-block mt-1">
-            <i class="fas fa-info-circle"></i> AI Image Generator
+            AI Image Generator
         </small>
     </form>
 </div>
