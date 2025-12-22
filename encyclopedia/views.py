@@ -268,7 +268,7 @@ def history(request, title):
     })
 @login_required
 def generate_ai_image(request):
-    """Generate AI image from prompt"""
+    """Generate AI image from prompt with better timeout handling"""
     context = {'user': request.user}
     
     if request.method == "POST":
@@ -278,31 +278,60 @@ def generate_ai_image(request):
             messages.error(request, "Please enter a prompt")
             return redirect('index')
         
+        # Simple prompt validation
+        if len(prompt) < 3:
+            messages.error(request, "Prompt too short. Be more descriptive.")
+            return redirect('index')
+        if len(prompt) > 200:
+            messages.error(request, "Prompt too long. Keep it under 200 characters.")
+            return redirect('index')
+        
         # Rate limiting
         cache_key = f"ai_image_{request.user.id}"
         count = cache.get(cache_key, 0)
         
         if count >= 3:
-            context['error'] = "⚠️ Rate limit: 3 images/hour. Please wait."
-            return render(request, 'encyclopedia/ai_generated.html', context)
+            messages.warning(request, "Rate limit: 3 images/hour. Please wait.")
+            return redirect('index')
         
-        print(f"👤 User {request.user.username} requested AI image for: '{prompt}'")
+        print(f"👤 AI request from {request.user.username}: '{prompt[:50]}...'")
         
-        # Try to generate image
+        # Show loading page immediately
+        return render(request, 'encyclopedia/ai_loading.html', {
+            'prompt': prompt,
+            'user': request.user
+        })
+    
+    return render(request, 'encyclopedia/ai_generated.html', context)
+
+@login_required
+def generate_ai_image_process(request):
+    """Process AI generation in background"""
+    if request.method == "POST":
+        prompt = request.POST.get("prompt", "").strip()
+        
+        if not prompt:
+            return JsonResponse({'error': 'No prompt provided'}, status=400)
+        
+        # Rate limiting check
+        cache_key = f"ai_image_{request.user.id}"
+        count = cache.get(cache_key, 0)
+        
+        if count >= 3:
+            return JsonResponse({'error': 'Rate limit: 3 images/hour'}, status=429)
+        
+        # Generate image with timeout
         try:
             from .ai_images import generate_craiyon_image
             start_time = time.time()
             image_url = generate_craiyon_image(prompt)
             generation_time = time.time() - start_time
             
-            print(f"⏱️ Generation took {generation_time:.2f} seconds")
-            print(f"📷 Image URL returned: {image_url[:100] if image_url else 'None'}")
-            
             if image_url:
                 # Update rate limit
                 cache.set(cache_key, count + 1, 3600)
                 
-                context.update({
+                return JsonResponse({
                     'success': True,
                     'image_url': image_url,
                     'prompt': prompt,
@@ -310,14 +339,15 @@ def generate_ai_image(request):
                     'rate_limit_used': count + 1,
                     'rate_limit_max': 3
                 })
-                messages.success(request, f"✅ Image generated successfully!")
             else:
-                context['error'] = "❌ Failed to generate image. The AI service might be busy."
-                messages.error(request, "Image generation failed. Please try again.")
+                return JsonResponse({
+                    'error': 'Image generation failed. The AI service might be busy. Please try a different prompt.'
+                }, status=500)
                 
         except Exception as e:
-            print(f"💥 Error in generate_ai_image view: {e}")
-            context['error'] = f"❌ Error: {str(e)}"
-            messages.error(request, f"Error: {str(e)}")
+            print(f"💥 AI processing error: {e}")
+            return JsonResponse({
+                'error': f'Technical error: {str(e)}'
+            }, status=500)
     
-    return render(request, 'encyclopedia/ai_generated.html', context)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
