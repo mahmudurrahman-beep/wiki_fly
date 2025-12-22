@@ -351,3 +351,23 @@ def generate_ai_image_process(request):
             }, status=500)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def ai_image_result(request):
+    """Display AI image result"""
+    success = request.GET.get('success') == 'true'
+    
+    if success:
+        return render(request, 'encyclopedia/ai_image_result.html', {
+            'success': True,
+            'prompt': request.GET.get('prompt', ''),
+            'image_url': request.GET.get('image_url', ''),
+            'generation_time': request.GET.get('time', '0'),
+            'user': request.user
+        })
+    else:
+        return render(request, 'encyclopedia/ai_image_result.html', {
+            'success': False,
+            'error_message': request.GET.get('error', 'Generation failed'),
+            'user': request.user
+        })
