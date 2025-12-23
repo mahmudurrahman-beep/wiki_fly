@@ -1,55 +1,48 @@
 /* encyclopedia/static/encyclopedia/styles.css */
 
 /* 1. RESET & BASE */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html, body {
-    height: 100%;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #fdfdfd;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    display: flex;
+    background-color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 2. LAYOUT ENGINE */
+.main-row {
     min-height: 100vh;
 }
 
-/* 2. SIDEBAR (DESKTOP) */
+/* SIDEBAR - DESKTOP */
 .sidebar {
-    width: 280px;
-    min-width: 280px;
-    height: 100vh;
     background-color: #ffffff;
     border-right: 1px solid #e2e8f0;
+    height: 100vh;
     position: fixed;
     display: flex;
     flex-direction: column;
+    overflow-y: auto; /* Allows scrolling if content is tall */
     z-index: 1000;
-    /* This allows scrolling if the buttons are too many */
-    overflow-y: auto; 
-}
-
-/* Custom Scrollbar for a modern look */
-.sidebar::-webkit-scrollbar {
-    width: 5px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
-    border-radius: 10px;
+    width: 280px; /* Fixed width for symmetry */
 }
 
 .main-content {
-    margin-left: 280px;
+    margin-left: 280px; /* Matches sidebar width */
     flex: 1;
     width: calc(100% - 280px);
     background: #f8fafc;
+    min-height: 100vh;
 }
 
-/* 3. SIDEBAR COMPONENTS */
+.content-wrapper {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 3. SYMMETRICAL COMPONENTS */
 .logo-container {
     padding: 30px 20px;
     text-align: center;
@@ -57,66 +50,81 @@ body {
 }
 
 .logo-img {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
     object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
 }
 
-.search-form, .ai-search-form {
-    padding: 15px 20px 5px 20px;
+.logo-container:hover .logo-img {
+    transform: rotate(5deg) scale(1.05);
 }
 
 .search-input {
     width: 100% !important;
     padding: 12px !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     font-size: 14px !important;
     margin-bottom: 8px !important;
+    transition: border 0.2s ease;
 }
 
+.search-input:focus {
+    border-color: #6366f1 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* BUTTONS - SYMMETRICAL & ANIMATED */
 .sidebar .btn {
     width: 100% !important;
     padding: 12px !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     font-weight: 600 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
     border: none !important;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
 
-.btn-search { background: #3b82f6 !important; color: white !important; }
-.btn-ai { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important; color: white !important; }
+.sidebar .btn:active, .btn-read:active, .btn-edit:active {
+    transform: scale(0.96);
+}
 
-.nav-links { padding: 10px 20px; }
+/* Colors matching your modern palette */
+.btn-search { background: #3b82f6 !important; color: white !important; }
+.btn-ai { 
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important; 
+    color: white !important; 
+}
+.btn-logout { background: #ef4444 !important; color: white !important; }
+
+/* NAV LINKS */
 .nav-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px;
-    color: #4a5568;
+    padding: 12px 15px;
+    color: #475569;
     text-decoration: none;
     font-weight: 500;
     border-radius: 8px;
-}
-.nav-link:hover { background: #f1f5f9; color: #1a202c; }
-
-/* User Section - The "Teleporting" Section */
-.user-section {
-    margin-top: auto;
-    padding: 20px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
 }
 
-/* 4. MODERN CARDS */
-.content-wrapper { padding: 40px; max-width: 1200px; margin: 0 auto; }
+.nav-link:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding-left: 20px; /* The slide animation */
+}
 
+/* 4. MODERN CARDS (For Index Page) */
 .entry-card {
     background: white;
     border: 1px solid #e2e8f0;
@@ -124,66 +132,66 @@ body {
     padding: 25px;
     margin-bottom: 25px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.entry-card:hover {
+    transform: translateY(-8px); /* The Lift Animation */
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+/* Entry Buttons */
 .btn-read {
-    background: #334155 !important;
+    background: #334155 !important; /* Slate */
     color: white !important;
-    margin-bottom: 10px;
-    text-decoration: none;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; padding: 10px; border-radius: 8px;
+    text-decoration: none; margin-bottom: 10px;
+    transition: transform 0.2s;
 }
 
 .btn-edit {
-    background: #10b981 !important;
+    background: #10b981 !important; /* Emerald */
     color: white !important;
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; padding: 10px; border-radius: 8px;
     text-decoration: none;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
+    transition: transform 0.2s;
 }
 
-/* 5. MOBILE RESPONSIVE (Teleport Magic) */
+/* 5. MOBILE RESPONSIVE (THE TELEPORT LOGIC) */
 @media (max-width: 768px) {
-    body {
-        flex-direction: column;
-    }
-
-    .main-row {
-        display: flex !important;
-        flex-direction: column !important; /* Stack everything vertically */
-    }
-
+    body { flex-direction: column; }
+    
     .sidebar {
         position: relative !important;
         width: 100% !important;
         height: auto !important;
         border-right: none;
-        display: contents; /* This allows sidebar children to mix with main content children */
+        display: contents; /* Key for reordering */
     }
 
-    .logo-container, .search-form, .ai-search-form, .nav-links {
-        order: 1; /* Keep top nav at the top */
+    /* Order 1: Top Nav (Logo, Search, Links) */
+    .sidebar-top-group {
+        order: 1;
         background: white;
+        border-bottom: 1px solid #e2e8f0;
+        width: 100%;
     }
 
+    /* Order 2: Main Content (Encyclopedia Entries) */
     .main-content {
         margin-left: 0 !important;
         width: 100% !important;
-        order: 2; /* Encyclopedia entries go in the middle */
+        order: 2;
     }
 
+    /* Order 3: User Section (Login/Register moves to bottom) */
     .user-section {
-        order: 3 !important; /* Login/Register go ALL the way to the bottom */
-        position: relative;
+        order: 3 !important;
+        background: white;
+        border-top: 1px solid #e2e8f0;
         width: 100%;
+        margin-top: 20px;
     }
 }
