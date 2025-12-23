@@ -1,38 +1,51 @@
 {% extends "encyclopedia/layout.html" %}
 
-{% block title %}Home - Wiki{% endblock %}
+{% block title %}
+    Home - Wiki
+{% endblock %}
 
 {% block body %}
-    <div class="d-flex align-items-center mb-5">
-        <h1 class="fw-bold mb-0">Public Encyclopedia</h1>
-        <span class="badge bg-primary ms-3 px-3 py-2 rounded-pill">Latest Entries</span>
+    <h1 class="mb-4"><i class="fas fa-book-open"></i> Public Encyclopedia</h1>
+
+    {% if not user.is_authenticated %}
+    <div class="alert alert-info shadow-sm border-0" style="background-color: #e0f2fe; border-radius: 12px;">
+        <i class="fas fa-info-circle text-primary"></i> 
+        <strong>Welcome Visitor!</strong> You can read all pages. 
+        <a href="{% url 'login' %}" class="font-weight-bold">Login</a> or 
+        <a href="{% url 'register' %}" class="font-weight-bold">Register</a> to create and edit pages.
     </div>
+    {% endif %}
 
     <div class="row">
         {% for entry in entries %}
-            <div class="col-xl-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-4">
                 <div class="entry-card h-100 d-flex flex-column">
-                    <div class="mb-4">
-                        <div class="text-primary small fw-bold mb-1">WIKI ENTRY</div>
-                        <h4 class="fw-bold mb-0">{{ entry }}</h4>
-                    </div>
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-file-alt text-primary mr-2"></i>
+                        <a href="{% url 'entry' entry %}" class="text-dark">{{ entry }}</a>
+                    </h5>
                     
-                    <div class="mt-auto pt-3 border-top">
-                        <a href="{% url 'entry' entry %}" class="btn-read w-100 mb-2 text-decoration-none">
-                            <i class="fas fa-book-open"></i> Read Entry
+                    <div class="mt-auto">
+                        <a href="{% url 'entry' entry %}" class="btn-read mb-2">
+                            <i class="fas fa-eye"></i> Read Page
                         </a>
+
                         {% if user.is_authenticated %}
-                            <a href="{% url 'edit' entry %}" class="btn-edit w-100 text-decoration-none">
-                                <i class="fas fa-pen-nib"></i> Edit Page
+                            <a href="{% url 'edit' entry %}" class="btn-edit">
+                                <i class="fas fa-edit"></i> Edit
                             </a>
+                        {% else %}
+                            <div class="btn-edit" style="background: #f1f5f9 !important; color: #94a3b8 !important; border: 1px solid #e2e8f0 !important; cursor: not-allowed;">
+                                <i class="fas fa-lock small"></i> <span style="font-size: 0.8rem;">Login to edit</span>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
         {% empty %}
-            <div class="text-center py-5">
-                <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
-                <p class="text-muted">No entries found yet.</p>
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No encyclopedia entries found.</p>
             </div>
         {% endfor %}
     </div>
