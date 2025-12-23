@@ -11,7 +11,6 @@ html, body {
     height: 100%;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #fdfdfd;
-    color: #2d3748;
 }
 
 body {
@@ -19,7 +18,7 @@ body {
     min-height: 100vh;
 }
 
-/* 2. LAYOUT ENGINE */
+/* 2. SIDEBAR (DESKTOP) */
 .sidebar {
     width: 280px;
     min-width: 280px;
@@ -30,6 +29,17 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 1000;
+    /* This allows scrolling if the buttons are too many */
+    overflow-y: auto; 
+}
+
+/* Custom Scrollbar for a modern look */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
 }
 
 .main-content {
@@ -39,7 +49,7 @@ body {
     background: #f8fafc;
 }
 
-/* 3. SIDEBAR COMPONENTS (Symmetry Fix) */
+/* 3. SIDEBAR COMPONENTS */
 .logo-container {
     padding: 30px 20px;
     text-align: center;
@@ -68,7 +78,6 @@ body {
     margin-bottom: 8px !important;
 }
 
-/* Make Sidebar Buttons Full Width & Symmetrical */
 .sidebar .btn {
     width: 100% !important;
     padding: 12px !important;
@@ -79,18 +88,11 @@ body {
     justify-content: center !important;
     gap: 8px !important;
     border: none !important;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-}
-
-.sidebar .btn:active {
-    transform: scale(0.98);
 }
 
 .btn-search { background: #3b82f6 !important; color: white !important; }
 .btn-ai { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important; color: white !important; }
 
-/* Nav Links */
 .nav-links { padding: 10px 20px; }
 .nav-link {
     display: flex;
@@ -102,10 +104,9 @@ body {
     font-weight: 500;
     border-radius: 8px;
 }
-
 .nav-link:hover { background: #f1f5f9; color: #1a202c; }
 
-/* User Section (Moves to bottom on mobile) */
+/* User Section - The "Teleporting" Section */
 .user-section {
     margin-top: auto;
     padding: 20px;
@@ -113,7 +114,7 @@ body {
     border-top: 1px solid #e2e8f0;
 }
 
-/* 4. MODERN CARDS (Read/Edit Modern Colors) */
+/* 4. MODERN CARDS */
 .content-wrapper { padding: 40px; max-width: 1200px; margin: 0 auto; }
 
 .entry-card {
@@ -125,9 +126,8 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
-/* Modern Slate and Emerald Buttons */
 .btn-read {
-    background: #334155 !important; /* Slate Blue-Gray */
+    background: #334155 !important;
     color: white !important;
     margin-bottom: 10px;
     text-decoration: none;
@@ -140,7 +140,7 @@ body {
 }
 
 .btn-edit {
-    background: #10b981 !important; /* Emerald Green */
+    background: #10b981 !important;
     color: white !important;
     text-decoration: none;
     display: inline-flex;
@@ -151,44 +151,39 @@ body {
     border-radius: 8px;
 }
 
-/* 5. AUTH PAGES */
-.auth-page {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 80vh;
-}
-
-.auth-card {
-    width: 100%;
-    max-width: 450px;
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-/* 6. MOBILE RESPONSIVE FLOW */
+/* 5. MOBILE RESPONSIVE (Teleport Magic) */
 @media (max-width: 768px) {
-    body { flex-direction: column; }
+    body {
+        flex-direction: column;
+    }
+
+    .main-row {
+        display: flex !important;
+        flex-direction: column !important; /* Stack everything vertically */
+    }
 
     .sidebar {
-        position: relative;
+        position: relative !important;
         width: 100% !important;
-        height: auto;
+        height: auto !important;
         border-right: none;
-        border-bottom: 1px solid #e2e8f0;
+        display: contents; /* This allows sidebar children to mix with main content children */
+    }
+
+    .logo-container, .search-form, .ai-search-form, .nav-links {
+        order: 1; /* Keep top nav at the top */
+        background: white;
     }
 
     .main-content {
         margin-left: 0 !important;
         width: 100% !important;
-        display: flex;
-        flex-direction: column;
+        order: 2; /* Encyclopedia entries go in the middle */
     }
 
-    /* Move Login section to the bottom of everything on mobile */
     .user-section {
-        order: 10; 
+        order: 3 !important; /* Login/Register go ALL the way to the bottom */
+        position: relative;
+        width: 100%;
     }
 }
