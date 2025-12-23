@@ -1,0 +1,14 @@
+# .renderignore
+# Tell Render to ALWAYS rebuild everything
+*
+!*.py
+!*.html
+!*.css
+!*.js
+!*.txt
+!*.md
+!requirements.txt
+!runtime.txt
+!build.sh
+!manage.py
+!README.md
