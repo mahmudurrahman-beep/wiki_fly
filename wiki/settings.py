@@ -2,7 +2,7 @@
 Django settings for wiki project.
 Optimized for Render.com + Supabase
 """
-
+import sys
 import os
 from pathlib import Path
 import dj_database_url
@@ -156,3 +156,24 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     SECURE_REFERRER_POLICY = 'same-origin'
+
+if 'runserver' in sys.argv or 'migrate' in sys.argv:
+    print("=" * 60)
+    print("DEBUG: Checking imports...")
+    
+    try:
+        from encyclopedia import views
+        print("✅ Successfully imported views")
+        
+        # Check for required attributes
+        required = ['generate_ai_image', 'generate_ai_image_process', 'ai_image_result']
+        for attr in required:
+            if hasattr(views, attr):
+                print(f"✅ Found: {attr}")
+            else:
+                print(f"❌ Missing: {attr}")
+                
+    except Exception as e:
+        print(f"❌ Import error: {e}")
+    
+    print("=" * 60)
